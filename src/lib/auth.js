@@ -1,14 +1,19 @@
 // lib/auth.js
 import { lucia } from '@lucia-auth/nextjs';
 import { pgAdapter } from '@lucia-auth/postgresql';
-import { createPool } from 'pg';
+import { Pool } from 'pg';
 
-const pool = createPool({
-  connectionString: process.env.DATABASE_URL, // Vercel integrációhoz
+// PostgreSQL kapcsolati pool létrehozása
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 export const auth = lucia({
   adapter: pgAdapter(pool),
-  secret: process.env.LUCIA_SECRET, // Ezt a környezeti változók közé kell felvenni
+  secret: process.env.LUCIA_SECRET,
   env: process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
 });
+
